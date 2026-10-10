@@ -1,6 +1,9 @@
 name: Walker AI Investing - Engine 01
 
 on:
+  schedule:
+    - cron: "0 9 * * *"
+      timezone: "Australia/Sydney"
   workflow_dispatch:
 
 permissions:
