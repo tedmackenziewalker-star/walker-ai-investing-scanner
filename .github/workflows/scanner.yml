@@ -23,7 +23,7 @@ jobs:
         run: python scan_health.py
       - name: Save results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: walker-ai-scan
           path: |
