@@ -1,0 +1,33 @@
+name: Walker AI Investing - Engine 01
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run scanner
+        run: python scanner.py > scanner_run.log 2>&1
+      - name: Health report
+        run: python scan_health.py
+      - name: Save results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walker-ai-scan
+          path: |
+            scanner_results.csv
+            scanner_failures.csv
+            scanner_run.log
+          retention-days: 7
