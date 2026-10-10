@@ -138,3 +138,30 @@ pd.DataFrame(failures, columns=["Ticker", "Reason"]).to_csv(
 )
 print(f"Stocks excluded or failed: {len(failures)}")
 print("Failure log saved to scanner_failures.csv")
+
+# SCAN HEALTH GATE
+# Exit with an error if the scan is not reliable.
+import sys
+
+successful = len(results)
+total = len(TICKERS)
+unexpected = [
+    f for f in failures
+    if f["Reason"] != "Insufficient history"
+]
+stale = sum(r["Freshness"] == "STALE" for r in results)
+
+if (
+    total < 450
+    or successful < total * 0.95
+    or unexpected
+    or stale
+):
+    print("SCAN FAILED HEALTH CHECK")
+    print(f"Successful: {successful}/{total}")
+    print(f"Unexpected failures: {len(unexpected)}")
+    print(f"Stale records: {stale}")
+    sys.exit(1)
+
+print("SCAN PASSED HEALTH CHECK")
+
