@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   scan:
@@ -34,3 +34,18 @@ jobs:
             scanner_failures.csv
             scanner_run.log
           retention-days: 7
+      - name: Publish latest verified results
+        if: github.ref == 'refs/heads/main' && success()
+        run: |
+          test -s scanner_results.csv
+          mkdir -p data
+          cp scanner_results.csv data/latest_scan.csv
+          git add -- data/latest_scan.csv
+          if git diff --cached --quiet; then
+            echo "Latest verified scan is unchanged; no commit needed."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Update latest verified 200-week MA scan"
+            git push origin HEAD:main
+          fi
